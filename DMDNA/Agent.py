@@ -2,18 +2,17 @@ import numpy as np
 import tensorflow as tf
 import time
 from ARG_FILE import args
-# from Network import Branch_Dqn, ReplayBuffer
-from Network import Branch_Dqn, ReplayBuffer,ReplayBuffer_HER1,ReplayBuffer_HER2
+from Network import MDN, ReplayBuffer, ReplayBuffer_HER1, ReplayBuffer_HER2
 
 class Agent:
-    def __init__(self,env):
+    def __init__(self, env):
         self.env = env
         self.S_dim = self.env.observation_space.n
         self.A_dim = self.env.Robot
         self.A_pre_dim=self.env.action_space.n
 
-        self.q_model = Branch_Dqn(self.S_dim, self.A_dim, self.A_pre_dim)
-        self.t_model = Branch_Dqn(self.S_dim, self.A_dim, self.A_pre_dim)
+        self.q_model = MDN(self.S_dim, self.A_dim, self.A_pre_dim)
+        self.t_model = MDN(self.S_dim, self.A_dim, self.A_pre_dim)
         self.target_update()
 
         self.buffer = ReplayBuffer()
@@ -92,59 +91,6 @@ class Agent:
         self.train_time=self.train_time+1
         # loss, td_error=self.q_model.train(states, target, action_mask1)
         return loss
-
-
-
-    # def train(self, max_episodes=1000):
-    #     learn_step_counter = 0
-    #     goal = []
-    #     for r in range(self.env.Robot):
-    #         goal.append(self.env.global_path[r][-1])
-    #     goal = np.array(goal)
-    #     T_r = 0
-    #     min_step = 100
-    #     max_value = -200
-    #     loss=10
-    #     for ep in range(max_episodes):
-    #         step=0
-    #         done, total_reward = False, 0
-    #         state = self.env.reset()
-    #         # if learn_step_counter > 600:
-    #         #    self.q_model.epsilon = 0.4
-    #         # else:
-    #         # self.q_model.epsilon = 1
-    #         if learn_step_counter % 100 == 0:
-    #             self.q_model.epsilon *= args.eps_decay
-    #         while not done:
-    #             step=step+1
-    #             action = self.q_model.next_action(state, goal)
-    #             next_state, reward, done, _ = self.env.step(action, state)
-    #             self.buffer.put(state, action, reward*0.01, next_state, done)
-    #             total_reward += reward
-    #             state = next_state
-    #             if step > 12:
-    #                 break
-    #         T_r += total_reward
-    #         if self.buffer.size() >= args.batch_size:
-    #             loss = self.replay()
-    #             with self.writer.as_default():
-    #                 tf.summary.scalar("loss", loss, step=self.train_time)
-    #                 self.writer.flush()
-    #         if learn_step_counter % args.replace_target_iter == 0:
-    #             self.target_update()
-    #         if ep != 0:
-    #             with self.writer.as_default():
-    #                 tf.summary.scalar("average_reword", T_r / ep, step=ep)
-    #                 tf.summary.scalar("sum_reword", T_r, step=ep)
-    #                 self.writer.flush()
-    #         learn_step_counter += 1
-    #         min_step=min(min_step,step)
-    #         max_value=max(max_value,total_reward)
-    #         print('EP{} time{} EpisodeReward={} min_step={} max_reword={} loss={}'.format(ep, step, total_reward, min_step, max_value,loss))
-    #         with self.writer.as_default():
-    #             tf.summary.scalar("reword", total_reward, step=ep)
-    #             self.writer.flush()
-    #     self.q_model.save_model()
 
     def train(self, max_episodes=1000):
         max_step=15

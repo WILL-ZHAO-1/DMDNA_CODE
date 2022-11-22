@@ -6,7 +6,7 @@ from collections import deque
 import random
 from ARG_FILE import args
 
-class Branch_Dqn:
+class MDN:
     def __init__(self, state_dim, action_dim, action_pre_dim):
         self.S_dim = state_dim
         self.A_dim = action_dim
